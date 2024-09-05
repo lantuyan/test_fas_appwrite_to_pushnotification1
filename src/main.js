@@ -34,6 +34,14 @@ const client = new Client()
   .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
   .setKey(process.env.APPWRITE_API_KEY);
 const databases = new Databases(client);
+
+const Status = {
+  ON: 'on',
+  OFF: 'off',
+  WARNING: 'warning',
+  FIRE: 'fire'
+};
+
 export default async ({ req, res, log, error }) => {
   log('APPWRITE_URL: ' + process.env.APPWRITE_URL
     + '\nAPPWRITE_FUNCTION_PROJECT_ID: ' + process.env.APPWRITE_FUNCTION_PROJECT_ID
@@ -61,10 +69,7 @@ export default async ({ req, res, log, error }) => {
 
     promise.documents.forEach(async (item) => {
       const currentDate = new Date();
-      if (
-        item.value >= 1000 &&
-        isMoreThan5MinutesAgo(item.lastNotification, currentDate)
-      ) {
+      if (item.status == Status.FIRE && isMoreThan5MinutesAgo(item.lastNotification, currentDate)) {
         const sendResponse = await sendPushNotification({
           data: {
             title: 'Cảnh báo cháy',
