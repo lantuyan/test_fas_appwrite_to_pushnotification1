@@ -31,11 +31,7 @@ export function throwIfMissing(obj, keys) {
  * @returns {Promise<string>}
  */
 export async function sendPushNotification(payload) {
-  try {
-    return await admin.messaging().sendMulticast(payload);
-  } catch (e) {
-    throw 'error on messaging ';
-  }
+  return await admin.messaging().sendMulticast(payload);
 }
 
 export function isMoreThan5MinutesAgo(dateString, currentDate) {
