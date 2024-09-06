@@ -61,6 +61,9 @@ export default async ({ req, res, log, error }) => {
       .map((document) => document.deviceToken)
       .filter((token) => token !== null && token.trim() !== '');
 
+    log('deviceTokens: ' + deviceTokens);
+    log('deviceTokens size: ' + deviceTokens.length);
+
     const promise = await databases.listDocuments(
       buildingDatabaseID,
       sensorCollectionID,
@@ -70,15 +73,16 @@ export default async ({ req, res, log, error }) => {
     promise.documents.forEach(async (item) => {
       const currentDate = new Date();
       if (item.status == Status.FIRE && isMoreThan5MinutesAgo(item.lastNotification, currentDate)) {
+        log('currentDate: ' + currentDate);
+        log('lastNotification: ' + item.lastNotification);
+
         const sendResponse = await sendPushNotification({
           data: {
             title: 'Cảnh báo cháy',
             body:
               'Thiết bị ' +
               item.name +
-              ' đang ở mức độ cảnh báo cháy (' +
-              item.value +
-              ')',
+              ' đang ở mức độ cảnh báo cháy',
             "$id": String(item.$id),
             "name": String(item.name),
             "time": String(item.time),
@@ -91,7 +95,7 @@ export default async ({ req, res, log, error }) => {
           tokens: deviceTokens,
         });
 
-        log('Successfully sent message: ', sendResponse);
+        log('Successfully sent message');
 
         const updateResponse = await databases.updateDocument(
           buildingDatabaseID,
