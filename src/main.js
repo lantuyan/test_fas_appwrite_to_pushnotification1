@@ -97,14 +97,14 @@ export default async ({ req, res, log, error }) => {
 
         log('Successfully sent message');
 
-        const updateResponse = await databases.updateDocument(
-          buildingDatabaseID,
-          sensorCollectionID,
-          item.$id,
-          {
-            lastNotification: currentDate,
-          }
-        );
+        // const updateResponse = await databases.updateDocument(
+        //   buildingDatabaseID,
+        //   sensorCollectionID,
+        //   item.$id,
+        //   {
+        //     lastNotification: currentDate,
+        //   }
+        // );
       }
     });
   } catch (e) {
