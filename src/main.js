@@ -67,7 +67,7 @@ export default async ({ req, res, log, error }) => {
     
     promise.documents.forEach(async (item) => {
       const inputDate = new Date(item.lastNotification);
-      const isMoreThan5MinutesAgo = isMoreThan5MinutesAgo(item.lastNotification, currentDate)
+      const isMoreThan5MinutesAgo = isMoreThan5MinutesAgo(item.lastNotification, currentDate);
 
       log('-------------- ' + item.name + ' --------------')
       log('lastNotification: ' + item.lastNotification);
@@ -76,7 +76,6 @@ export default async ({ req, res, log, error }) => {
 
       if (item.status == Status.FIRE && isMoreThan5MinutesAgo) {
         log('Send Push Notification');
-        
         const sendResponse = await sendPushNotification({
           data: {
             title: 'Cảnh báo cháy',
