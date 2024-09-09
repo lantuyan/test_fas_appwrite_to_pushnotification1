@@ -76,7 +76,7 @@ export default async ({ req, res, log, error }) => {
 
       if (item.status == Status.FIRE && isValidTimeout) {
         log('Send Push Notification');
-        const sendResponse = await sendPushNotification({
+        await sendPushNotification({
           data: {
             title: 'Cảnh báo cháy',
             body:
@@ -97,7 +97,7 @@ export default async ({ req, res, log, error }) => {
 
         log('Successfully sent message');
 
-        const updateResponse = await databases.updateDocument(
+        await databases.updateDocument(
           buildingDatabaseID,
           sensorCollectionID,
           item.$id,
