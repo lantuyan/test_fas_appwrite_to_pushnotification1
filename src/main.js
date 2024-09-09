@@ -54,7 +54,6 @@ export default async ({ req, res, log, error }) => {
       .map((document) => document.deviceToken)
       .filter((token) => token !== null && token.trim() !== '');
 
-    log('deviceTokens: ' + deviceTokens);
     log('deviceTokens size: ' + deviceTokens.length);
 
     const promise = await databases.listDocuments(
@@ -63,14 +62,18 @@ export default async ({ req, res, log, error }) => {
       [Query.limit(100000), Query.offset(0)]
     );
 
+    const currentDate = new Date();
+    log('currentDate: ' + currentDate);
+    
     promise.documents.forEach(async (item) => {
-      const currentDate = new Date();
-      log('currentDate: ' + currentDate);
+      log('-------------- ' + item.name + ' --------------')
       log('lastNotification: ' + item.lastNotification);
 
       const inputDate = new Date(item.lastNotification);
-
       log('inputDate: ' + inputDate);
+
+      log('isMoreThan5MinutesAgo: ' + isMoreThan5MinutesAgo(item.lastNotification, currentDate));
+      
       if (item.status == Status.FIRE && isMoreThan5MinutesAgo(item.lastNotification, currentDate)) {
         log('Successfully sent message');
 
