@@ -73,7 +73,7 @@ export default async ({ req, res, log, error }) => {
       log('inputDate: ' + inputDate);
 
       log('isMoreThan5MinutesAgo: ' + isMoreThan5MinutesAgo(item.lastNotification, currentDate));
-      
+
       if (item.status == Status.FIRE && isMoreThan5MinutesAgo(item.lastNotification, currentDate)) {
         log('Successfully sent message');
 
@@ -104,6 +104,8 @@ export default async ({ req, res, log, error }) => {
             lastNotification: currentDate,
           }
         );
+
+        log('Update new lastNotification: '+ currentDate);
       } else {
         log('Do nothing');
         return ;
