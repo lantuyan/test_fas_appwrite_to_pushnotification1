@@ -55,6 +55,16 @@ export default async ({ req, res, log, error }) => {
       .filter((token) => token !== null && token.trim() !== '');
 
     log('deviceTokens size: ' + deviceTokens.length);
+    
+    if (Array.isArray(deviceTokens)) {
+      log('deviceTokens is an array');
+    } else {
+      log('deviceTokens is not an array');
+    }
+
+    for (let i = 0; i < deviceTokens.length; i++) {
+      log('deviceTokens' + i + ': '+ deviceTokens[i]);
+    }
 
     const promise = await databases.listDocuments(
       buildingDatabaseID,
