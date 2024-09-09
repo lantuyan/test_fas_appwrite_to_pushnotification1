@@ -66,17 +66,17 @@ export default async ({ req, res, log, error }) => {
     log('currentDate: ' + currentDate);
     
     promise.documents.forEach(async (item) => {
+      const inputDate = new Date(item.lastNotification);
+      const isMoreThan5MinutesAgo = isMoreThan5MinutesAgo(item.lastNotification, currentDate)
+
       log('-------------- ' + item.name + ' --------------')
       log('lastNotification: ' + item.lastNotification);
-
-      const inputDate = new Date(item.lastNotification);
       log('inputDate: ' + inputDate);
+      log('isMoreThan5MinutesAgo: ' + isMoreThan5MinutesAgo);
 
-      log('isMoreThan5MinutesAgo: ' + isMoreThan5MinutesAgo(item.lastNotification, currentDate));
-
-      if (item.status == Status.FIRE && isMoreThan5MinutesAgo(item.lastNotification, currentDate)) {
-        log('Successfully sent message');
-
+      if (item.status == Status.FIRE && isMoreThan5MinutesAgo) {
+        log('Send Push Notification');
+        
         const sendResponse = await sendPushNotification({
           data: {
             title: 'Cảnh báo cháy',
@@ -95,6 +95,8 @@ export default async ({ req, res, log, error }) => {
           },
           tokens: deviceTokens,
         });
+
+        log('Successfully sent message');
 
         const updateResponse = await databases.updateDocument(
           buildingDatabaseID,
