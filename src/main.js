@@ -106,7 +106,17 @@ export default async ({ req, res, log, error }) => {
         });
 
         log('Successfully sent message');
-        
+
+        await databases.updateDocument(
+          buildingDatabaseID,
+          sensorCollectionID,
+          item.$id,
+          {
+            lastNotification: currentDate,
+          }
+        );
+
+        log('Update new lastNotification: '+ currentDate);
       } else {
         log('Do nothing');
         return ;
