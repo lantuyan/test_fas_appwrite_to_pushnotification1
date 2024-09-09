@@ -43,13 +43,6 @@ const Status = {
 };
 
 export default async ({ req, res, log, error }) => {
-  log('APPWRITE_URL: ' + process.env.APPWRITE_URL
-    + '\nAPPWRITE_FUNCTION_PROJECT_ID: ' + process.env.APPWRITE_FUNCTION_PROJECT_ID
-    + '\nBUILDING_DATABASE_ID: ' + process.env.BUILDING_DATABASE_ID
-    + '\nSENSOR_COLLECTION_ID: ' + process.env.SENSOR_COLLECTION_ID
-    + '\nUSERS_COLLECTION_ID: ' + process.env.USERS_COLLECTION_ID
-  );
-
   try {
     const users = await databases.listDocuments(
       buildingDatabaseID,
@@ -72,9 +65,14 @@ export default async ({ req, res, log, error }) => {
 
     promise.documents.forEach(async (item) => {
       const currentDate = new Date();
+      log('currentDate: ' + currentDate);
+      log('lastNotification: ' + item.lastNotification);
+
+      const inputDate = new Date(item.lastNotification);
+
+      log('inputDate: ' + inputDate);
       if (item.status == Status.FIRE && isMoreThan5MinutesAgo(item.lastNotification, currentDate)) {
-        log('currentDate: ' + currentDate);
-        log('lastNotification: ' + item.lastNotification);
+        log('Successfully sent message');
 
         const sendResponse = await sendPushNotification({
           data: {
@@ -95,8 +93,6 @@ export default async ({ req, res, log, error }) => {
           tokens: deviceTokens,
         });
 
-        log('Successfully sent message');
-
         const updateResponse = await databases.updateDocument(
           buildingDatabaseID,
           sensorCollectionID,
@@ -105,6 +101,9 @@ export default async ({ req, res, log, error }) => {
             lastNotification: currentDate,
           }
         );
+      } else {
+        log('Do nothing');
+        return ;
       }
     });
   } catch (e) {
