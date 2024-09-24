@@ -3,7 +3,7 @@ import {
   sendPushNotification,
   isMoreThan5MinutesAgo,
 } from './utils.js';
-import { Client, Databases, Query } from 'node-appwrite';
+import { Client, Databases, Query,ID } from 'node-appwrite';
 import admin from 'firebase-admin';
 
 throwIfMissing(process.env, [
@@ -14,11 +14,13 @@ throwIfMissing(process.env, [
   'APPWRITE_FUNCTION_PROJECT_ID',
   'SENSOR_COLLECTION_ID',
   'USERS_COLLECTION_ID',
+  'NOTIFICATION_COLLECTION_ID',
 ]);
 
 const buildingDatabaseID = process.env.BUILDING_DATABASE_ID;
 const sensorCollectionID = process.env.SENSOR_COLLECTION_ID;
 const userCollectionID = process.env.USERS_COLLECTION_ID;
+const notificationCollectionID = process.env.NOTIFICATION_COLLECTION_ID;
 
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -86,13 +88,12 @@ export default async ({ req, res, log, error }) => {
 
       if (item.status == Status.FIRE && isValidTimeout) {
         log('Send Push Notification');
+        const body = 'Thiết bị ' +item.name +' đang ở mức độ cảnh báo cháy';
+        const title = 'Cảnh báo cháy';
         await sendPushNotification({
           data: {
-            title: 'Cảnh báo cháy',
-            body:
-              'Thiết bị ' +
-              item.name +
-              ' đang ở mức độ cảnh báo cháy',
+            title: title,
+            body: body,
             "$id": String(item.$id),
             "name": String(item.name),
             "time": String(item.time),
@@ -106,6 +107,20 @@ export default async ({ req, res, log, error }) => {
         });
 
         log('Successfully sent message');
+
+        await databases.createDocument(
+          buildingDatabaseID,
+          notificationCollectionID,
+          ID.Unique(),
+          {
+            sensorID: item.$id,
+            title: title,
+            description: body,
+            time: currentDate,
+          }
+        );
+        
+        log('Successfully create notification document');
 
       } else {
         log('Do nothing');
